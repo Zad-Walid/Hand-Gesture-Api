@@ -14,7 +14,7 @@ Instrumentator().instrument(app).expose(app)
 model = joblib.load("api/output/model.pkl")
 col_transf = joblib.load("api/output/label_encoder.joblib")
 
-os.makedirs("logs", exist_ok=True)
+os.makedirs("api/logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class HandGestureRequest(BaseModel):
     landmarks: conlist(float, min_length=63, max_length=63)
-    
+
 @app.get("/")
 def read_root():
     logger.info("Root endpoint accessed")
