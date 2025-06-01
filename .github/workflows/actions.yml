@@ -5,7 +5,7 @@ name: CI/CD
 on:
   push:
     branches:
-      - ci/cd
+      - main
 
 jobs:
   build_test_deploy:
@@ -24,5 +24,5 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest 
+          pytest
 
