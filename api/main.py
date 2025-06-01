@@ -12,17 +12,16 @@ Instrumentator().instrument(app).expose(app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load model and label encoder
 model = joblib.load("api/output/model.pkl")
 col_transf = joblib.load("api/output/label_encoder.joblib")
 
-# Logging setup
+
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
@@ -32,7 +31,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Gesture to action mapping
 gesture_to_action = {
     "like": "move_up",
     "dislike": "move_down",
@@ -41,7 +39,6 @@ gesture_to_action = {
     "stop": "pause"
 }
 
-# Request model
 class HandGestureRequest(BaseModel):
     landmarks: conlist(float, min_length=63, max_length=63)
 
@@ -59,11 +56,11 @@ def read_status():
 def predict(request: HandGestureRequest):
     logger.info("Prediction endpoint accessed")
     try:
-        # Prepare input
+        # Prepare input with correct column names
         input_df = pd.DataFrame([request.landmarks])
         logger.info("Received data for prediction: %s", input_df.values.tolist())
 
-        # Predict gesture
+        # Model prediction
         pred = model.predict(input_df)
         gesture = col_transf.inverse_transform(pred)[0]
         action = gesture_to_action.get(gesture, "unknown")

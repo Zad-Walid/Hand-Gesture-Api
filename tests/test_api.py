@@ -21,7 +21,6 @@ def test_health_status():
     assert response.json() == {"status": "ok"}
 
 def test_predict():
-    # Example input with 21 landmarks (63 floats = 21 points * 3 (x, y, z))
     example_landmarks = {
         "landmarks": [
             0.0, 0.0, 0.0,
@@ -40,7 +39,7 @@ def test_predict():
             0.1, 0.5, -0.07,
             0.0, 0.4, -0.08,
             -0.1, 0.3, -0.09,
-            -0.2, 0.2, -0.10,
+            -0.2, 0.2, -0.1,
             -0.3, 0.1, -0.11,
             -0.4, 0.0, -0.12,
             -0.5, -0.1, -0.13,
@@ -48,16 +47,11 @@ def test_predict():
         ]
     }
 
-    response = client.post("/predict", json=example_landmarks)
+    response = client.post("/predict", json=example_landmarks)    
+
     assert response.status_code == 200
-
     data = response.json()
-
-    assert "gesture" in data or "error" in data
-
-    if "gesture" in data:
-        assert isinstance(data["gesture"], str)
-        assert isinstance(data["action"], str)
-    else:
-        # optional: check error message content
-        assert data["error"] == "An error occurred during prediction."
+    assert "gesture" in data
+    assert "action" in data
+    assert isinstance(data["gesture"], str)
+    assert isinstance(data["action"], str)
