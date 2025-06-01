@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -23,18 +24,18 @@ jobs:
         run: |
           pytest
 
-      - name: Deploy to ClawCloud via SSH
+      - name: Deploy to AWS EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.CLAW_HOST }}
-          port: 48675
-          username: ${{ secrets.CLAW_USERNAME }}
-          key: ${{ secrets.CLAW_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}         # e.g., 3.122.123.12
+          username: ubuntu                      # or ec2-user for Amazon Linux
+          key: ${{ secrets.EC2_SSH_KEY }}       # contents of your .pem file
+          port: 22
           script: |
             docker stop ml-api || true
             docker rm ml-api || true
             rm -rf ~/ml-api
-            git clone https://github.com/<your-username>/<your-repo>.git ~/ml-api
+            git clone https://github.com/Zad-Walid/Hand-Gesture-Api.git ~/ml-api
             cd ~/ml-api
             docker compose down || true
             docker compose up --build -d
