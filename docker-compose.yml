@@ -1,40 +1,32 @@
-name: CI/CD
-on:
-  push:
-    branches:
-      - main
+version: '3.8'
 
-jobs:
-  build_test_deploy:
-    runs-on: ubuntu-latest
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    volumes:
+      - ./output:/app/output
 
-    steps:
-      - uses: actions/checkout@v2
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /etc/localtime:/etc/localtime:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-          pytest
-
-      - name: Deploy to ClawCloud via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.CLAW_HOST }}
-          username: ${{ secrets.CLAW_USERNAME }}
-          key: ${{ secrets.CLAW_SSH_KEY }}
-          script: |
-            docker stop ml-api || true
-            docker rm ml-api || true
-            rm -rf ~/ml-api
-            git clone https://github.com/Zad-Walid/Hand-Gesture-Api.git ~/ml-api
-            cd ~/ml-api
-            docker compose down || true
-            docker compose up --build -d
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
