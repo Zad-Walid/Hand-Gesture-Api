@@ -14,7 +14,7 @@ Instrumentator().instrument(app).expose(app)
 model = joblib.load("api/output/model.pkl")
 col_transf = joblib.load("api/output/label_encoder.joblib")
 
-os.makedirs("api/logs", exist_ok=True)
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
