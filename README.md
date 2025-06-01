@@ -27,15 +27,15 @@ A Prometheus service is included in the `docker-compose.yml` for scraping metric
 
 Below is an example screenshot of the Grafana dashboard monitoring the API:
 
-![Grafana Dashboard Example](monitoring/dashboard_screenshot.png)
+![inference_latency](https://github.com/user-attachments/assets/975cbaeb-228a-4481-9de8-3780806fd48e)
 This metric measures the time taken by the ML model to return a prediction.
 High latency may signal inefficiency or the need for optimization.
 
-![Grafana Dashboard Example](monitoring/dashboard_screenshot.png)
+![avg_req_dur](https://github.com/user-attachments/assets/a892b0be-eff0-473f-b439-e342c4157036)
 Represents how long it takes on average to respond to incoming requests. 
 Tracks data flow latency and user experience.
 
-![Grafana Dashboard Example](monitoring/dashboard_screenshot.png)
+![cpu_usage](https://github.com/user-attachments/assets/91cedaf2-5086-488c-8e0b-dd39a297013d)
 Indicates how much CPU the containerized API is consuming.
 Helps detect resource bottlenecks.
 
