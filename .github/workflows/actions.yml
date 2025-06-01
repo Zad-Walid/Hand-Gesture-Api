@@ -27,6 +27,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.CLAW_HOST }}
+          port: 48675
           username: ${{ secrets.CLAW_USERNAME }}
           key: ${{ secrets.CLAW_SSH_KEY }}
           script: |
