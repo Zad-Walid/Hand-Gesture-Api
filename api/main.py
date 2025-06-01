@@ -3,6 +3,7 @@ from pydantic import BaseModel, conlist
 import joblib
 import pandas as pd
 import logging
+import numpy as np
 import os
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,23 +55,33 @@ def read_status():
 
 @app.post("/predict")
 def predict(request: HandGestureRequest):
-    logger.info("Prediction endpoint accessed")
     try:
-        # Prepare input with correct column names
-        input_df = pd.DataFrame([request.landmarks])
-        logger.info("Received data for prediction: %s", input_df.values.tolist())
+        landmarks = np.array(request.landmarks).reshape(21, 3)
 
-        # Model prediction
+        # === Centering: Subtract wrist coordinates ===
+        wrist = landmarks[0, :].copy()
+        landmarks -= wrist
+
+        # === Scaling: Normalize by distance to middle finger tip ===
+        mid_finger_tip = landmarks[12, :].copy()
+        distance = np.linalg.norm(mid_finger_tip)
+        if distance > 0:
+            landmarks /= distance
+
+        # === Flatten and Predict ===
+        input_flat = landmarks.flatten().reshape(1, -1)
+        input_df = pd.DataFrame(input_flat)
+
         pred = model.predict(input_df)
         gesture = col_transf.inverse_transform(pred)[0]
         action = gesture_to_action.get(gesture, "unknown")
 
-        logger.info("Prediction result: Gesture='%s' → Action='%s'", gesture, action)
-
+        logger.info(f"Prediction result: Gesture='{gesture}' → Action='{action}'")
         return {
             "gesture": gesture,
             "action": action
         }
+
     except Exception as e:
         logger.error("Error during prediction: %s", str(e))
         return {"error": "An error occurred during prediction."}
